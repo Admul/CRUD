@@ -8,7 +8,6 @@ import jwt
 import os
 import socket
 
-SECRET_KEY = "SUPER_SECRET_KEY?" 
 DB_PASS = "123" # Пароль от пользователя БД
 DB_HOST = "192.168.1.20" # IP сервера, где находится БД
 USER = "cars_user" # Имя пользователя в БД
@@ -24,28 +23,6 @@ app = Flask(__name__)
 def main():
     ip = socket.gethostbyname(socket.gethostname())
     return f"{ip}"
-
-# AUTHORIZATION
-@app.route('/auth/login/', methods=["POST"])
-def auth():
-    # {"user", "password"}
-    #
-    body = request.get_json()
-    user = body["user"]
-    password = body["password"]
-    encode_password = hashlib.md5(f"{password}{SECRET_KEY}".encode()).hexdigest()
-    
-    cursor.execute(sql_requests.sql_auth(user, encode_password))
-    data = cursor.fetchone()
-    try:
-        user_id, name = data
-    except TypeError:
-        return 'Access denied', 403
-    
-    encoded_jwt = jwt.encode({"name": name, "user_id": user_id}, 
-                             SECRET_KEY, 
-                             algorithm="HS256")
-    return jsonify({"access_token":encoded_jwt})
 
 # INSERT
 @app.route('/cars/', methods=["POST"])
